@@ -1,4 +1,4 @@
-const { BadRequestError } = require("../expressError");
+const { BadRequestError, ExpressError } = require("../expressError");
 
 // THIS NEEDS SOME GREAT DOCUMENTATION.
 
@@ -43,4 +43,74 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   };
 }
 
-module.exports = { sqlForPartialUpdate };
+/**
+ *
+ * @param {*} queryParams
+ * @returns
+ */
+
+function createSqlFilterFromQuery(queryParams) {
+  const { nameLike, minEmployees, maxEmployees } = queryParams;
+  // console.log("queryParams$$", queryParams);
+
+  if (minEmployees !== undefined && isNaN(minEmployees)) {
+    throw new ExpressError(
+      "Query Parameter 'minEmployees' must be a number!",
+      400
+    );
+  }
+
+  if (maxEmployees !== undefined && isNaN(maxEmployees)) {
+    throw new ExpressError(
+      "Query Parameter 'maxEmployees' must be a number!",
+      400
+    );
+  }
+
+  // Convert the name to lowercase for case-insensitive search
+  const lowerCaseNameLike = nameLike ? nameLike.toLowerCase() : null;
+
+  // Empty Array to store conditions
+  let conditions = [];
+
+  if (nameLike) {
+    conditions.push(`handle LIKE '%${lowerCaseNameLike}%'`);
+  }
+  // if (minEmployees !== undefined && minEmployees !== "") {
+  //   if (typeof minEmployees === "number") {
+  //     conditions.push(`num_employees >= ${minEmployees}`);
+  //   } else {
+  //     throw new ExpressError(
+  //       "Query Parameter 'minEmployees' must be a number!",
+  //       404
+  //     );
+  //   }
+  // }
+
+  // if (maxEmployees !== undefined && maxEmployees !== "") {
+  //   if (typeof maxEmployees === "number") {
+  //     conditions.push(`num_employees <= ${maxEmployees}`);
+  //   } else {
+  //     throw new ExpressError(
+  //       "Query Parameter 'maxEmployees' must be a number!",
+  //       404
+  //     );
+  //   }
+  // }
+
+  if (minEmployees !== undefined && minEmployees !== "") {
+    conditions.push(`num_employees >= ${minEmployees}`);
+  }
+
+  if (maxEmployees !== undefined && maxEmployees !== "") {
+    conditions.push(`num_employees <= ${maxEmployees}`);
+  }
+
+  // console.log("Conditions - helper", conditions);
+  const sqlFilter =
+    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : null;
+
+  return sqlFilter;
+}
+
+module.exports = { sqlForPartialUpdate, createSqlFilterFromQuery };
