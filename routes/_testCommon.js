@@ -3,7 +3,11 @@
 const db = require("../db.js");
 const User = require("../models/user");
 const Company = require("../models/company");
+const Job = require("../models/job");
 const { createToken } = require("../helpers/tokens");
+
+// Define an array to store test job IDs.
+const testJobIds = [];
 
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
@@ -11,6 +15,9 @@ async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM companies");
 
+  await db.query("DELETE FROM jobs");
+
+  // Create sample data for companies, users, and jobs as needed for your tests.
   await Company.create({
     handle: "c1",
     name: "C1",
@@ -32,6 +39,30 @@ async function commonBeforeAll() {
     description: "Desc3",
     logoUrl: "http://c3.img",
   });
+
+  // testJobIds[0] = (
+  //   await Job.create({
+  //     title: "J1",
+  //     salary: 1,
+  //     equity: "0.1",
+  //     companyHandle: "c1",
+  //   })
+  // ).id;
+  // testJobIds[1] = (
+  //   await Job.create({
+  //     title: "J2",
+  //     salary: 2,
+  //     equity: "0.2",
+  //     companyHandle: "c1",
+  //   })
+  // ).id;
+  // testJobIds[2] = (
+  //   await Job.create({
+  //     title: "J3",
+  //     salary: 3,
+  //     /* equity null */ companyHandle: "c1",
+  //   })
+  // ).id;
 
   await User.register({
     username: "u1",
@@ -57,6 +88,26 @@ async function commonBeforeAll() {
     password: "password3",
     isAdmin: false,
   });
+  await User.register({
+    username: "admin",
+    firstName: "f_admin",
+    lastName: "l_admin",
+    email: "admin@user.com",
+    password: "password4",
+    isAdmin: true,
+  });
+
+  // Create and store job data.
+  const job1 = await Job.create({
+    title: "J1",
+    salary: 1,
+    equity: "0.1",
+    companyHandle: "c1",
+  });
+
+  testJobIds.push(job1.id);
+
+  // await User.applyToJob("u1", testJobIds[0]);
 }
 
 async function commonBeforeEach() {
@@ -74,12 +125,14 @@ async function commonAfterAll() {
 const u1Token = createToken({ username: "u1", isAdmin: false });
 const u2Token = createToken({ username: "u2", isAdmin: false });
 const adminToken = createToken({ username: "admin", isAdmin: true });
+// const adminToken = createToken({ username: "ad", isAdmin: true });
 
 module.exports = {
   commonBeforeAll,
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  testJobIds,
   u1Token,
   u2Token,
   adminToken,

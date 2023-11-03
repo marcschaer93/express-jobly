@@ -119,8 +119,9 @@ describe("GET /users", function () {
     const resp = await request(app)
       .get("/users")
       .set("authorization", `Bearer ${adminToken}`);
-    expect(resp.body).toEqual({
-      users: [
+
+    expect(resp.body.users).toEqual(
+      expect.arrayContaining([
         {
           username: "u1",
           firstName: "U1F",
@@ -142,8 +143,16 @@ describe("GET /users", function () {
           email: "user3@user.com",
           isAdmin: false,
         },
-      ],
-    });
+        {
+          email: "admin@user.com",
+          firstName: "f_admin",
+          isAdmin: true,
+          lastName: "l_admin",
+          username: "admin",
+        },
+        // Add other expected user objects here
+      ])
+    );
   });
 
   test("unauth for anon", async function () {

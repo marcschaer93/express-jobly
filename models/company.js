@@ -81,7 +81,7 @@ class Company {
     // Order the (filtered) companies by name
     query += " ORDER BY name";
 
-    console.log("Full Query:", query);
+    // console.log("Full Query:", query);
 
     // Execute the query to fetch filtered companies
     const filteredCompaniesRes = await db.query(query);

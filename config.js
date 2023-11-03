@@ -16,6 +16,13 @@ function getDatabaseUri() {
     : process.env.DATABASE_URL || "postgresql:///jobly";
 }
 
+// function getDatabaseUri() {
+//   if (process.env.NODE_ENV === "test") {
+//     return process.env.DATABASE_URL || "postgresql:///jobly_test";
+//   }
+//   return process.env.DATABASE_URL || "postgresql:///jobly";
+// }
+
 // Speed up bcrypt during tests, since the algorithm safety isn't being tested
 //
 // WJB: Evaluate in 2021 if this should be increased to 13 for non-test use

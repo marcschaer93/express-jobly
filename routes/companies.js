@@ -52,7 +52,7 @@ router.post("/", ensureLoggedIn, isAdmin, async function (req, res, next) {
 router.get("/", async (req, res, next) => {
   try {
     const queryParams = req.query;
-    console.log("Query Params:", queryParams);
+    // console.log("Query Params:", queryParams);
 
     const filteredCompanies = await Company.findFilteredCompanies(queryParams);
     if (filteredCompanies.length === 0) {
@@ -98,7 +98,6 @@ router.patch(
   isAdmin,
   async function (req, res, next) {
     try {
-      console.log("responseObject$$$", res.locals.user);
       const validator = jsonschema.validate(req.body, companyUpdateSchema);
       if (!validator.valid) {
         const errs = validator.errors.map((e) => e.stack);
