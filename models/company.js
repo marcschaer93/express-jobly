@@ -4,7 +4,7 @@ const db = require("../db");
 const { BadRequestError, NotFoundError } = require("../expressError");
 const {
   sqlForPartialUpdate,
-  createSqlFilterFromQuery,
+  createSqlFilterForCompany,
 } = require("../helpers/sql");
 
 /** Related functions for companies. */
@@ -59,10 +59,19 @@ class Company {
     );
     return companiesRes.rows;
   }
+  /**
+   * Retrieve filtered company data based on query parameters.
+   *
+   * This function constructs an SQL filter using query parameters. If no parameters
+   * are provided, the filter is set to null. It then retrieves company data, applies
+   * the filter if available, and orders the results by company name.
+   *
+   * @param {Object} queryParams - Parameters for filtering company data.
+   * @returns {Array} An array of filtered company objects.
+   */
 
   static async findFilteredCompanies(queryParams) {
-    // Create an SQL filter based on query parameters. If no parameters, set it to null
-    const sqlFilter = createSqlFilterFromQuery(queryParams);
+    const sqlFilter = createSqlFilterForCompany(queryParams);
     console.log("SQLFILTER", sqlFilter);
 
     let query = `
@@ -73,7 +82,6 @@ class Company {
               logo_url AS "logoUrl"
       FROM companies
     `;
-
     // Include the SQL filter in the query if it's not null
     if (sqlFilter) {
       query += sqlFilter;
@@ -81,11 +89,8 @@ class Company {
     // Order the (filtered) companies by name
     query += " ORDER BY name";
 
-    // console.log("Full Query:", query);
-
     // Execute the query to fetch filtered companies
     const filteredCompaniesRes = await db.query(query);
-
     return filteredCompaniesRes.rows;
   }
 
@@ -112,6 +117,19 @@ class Company {
     const company = companyRes.rows[0];
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
+
+    const jobRes = await db.query(
+      `
+      SELECT id, title, salary, equity
+      FROM jobs
+      WHERE company_handle = $1
+      ORDER BY id
+    `,
+      [handle]
+    );
+
+    company.jobs = jobRes.rows;
+    console.log("companyJobs", company.jobs);
 
     return company;
   }

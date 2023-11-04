@@ -4,17 +4,9 @@
 
 const jsonschema = require("jsonschema");
 const express = require("express");
-const {
-  ensureLoggedIn,
-  isAdmin,
-  correctUserOrAdmin,
-} = require("../middleware/auth");
+const { ensureLoggedIn, isAdmin } = require("../middleware/auth");
 const { BadRequestError } = require("../expressError");
-const User = require("../models/user");
 const Job = require("../models/job");
-const { createToken } = require("../helpers/tokens");
-const userNewSchema = require("../schemas/userNew.json");
-const userUpdateSchema = require("../schemas/userUpdate.json");
 const jobUpdateSchema = require("../schemas/jobUpdate.json");
 const jobNewSchema = require("../schemas/jobNew.json");
 
@@ -37,11 +29,10 @@ router.post("/", ensureLoggedIn, isAdmin, async function (req, res, next) {
       const errs = validator.errors.map((e) => e.stack);
       throw new BadRequestError(errs);
     }
-    console.log("Validator Works!");
     let newJobData = req.body;
 
     let newJob = await Job.create(newJobData);
-    console.log("New Job Data:", newJob); // Debugging line
+    console.log("New Job Data:", newJob);
 
     return res.status(201).json({ newJob });
   } catch (err) {
@@ -62,13 +53,25 @@ router.post("/", ensureLoggedIn, isAdmin, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
   try {
-    const jobs = await Job.findAll();
+    const queryParams = req.query;
+    const filteredJobs = await Job.findFilteredJobs(queryParams);
 
-    return res.status(201).json({ jobs });
+    if (filteredJobs.length === 0) {
+      return res.json({ message: `No Jobs found!` });
+    }
+
+    return res.json({ filteredJobs });
   } catch (err) {
     return next(err);
   }
 });
+
+/**
+ * Retrieve job information by its ID.
+ *
+ * This route handler fetches details of a specific job based on its ID and returns
+ * the job data in a JSON response with a 200 status code.
+ */
 
 router.get("/:id", async function (req, res, next) {
   try {
@@ -81,6 +84,13 @@ router.get("/:id", async function (req, res, next) {
     return next(err);
   }
 });
+
+/**
+ * Update job information by its ID.
+ *
+ * This route handler validates and processes updates to job details based on the ID.
+ * If the update data is valid, it updates the job and responds with the updated job data.
+ */
 
 router.patch("/:id", ensureLoggedIn, isAdmin, async function (req, res, next) {
   try {
@@ -96,6 +106,13 @@ router.patch("/:id", ensureLoggedIn, isAdmin, async function (req, res, next) {
     return next(err);
   }
 });
+
+/**
+ * Delete a job by its ID.
+ *
+ * This route handler deletes a job based on its ID. If successful, it responds with a
+ * JSON message confirming the removal of the job.
+ */
 
 router.delete("/:id", ensureLoggedIn, isAdmin, async function (req, res, next) {
   try {

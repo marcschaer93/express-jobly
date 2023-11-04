@@ -7,8 +7,11 @@ const { SECRET_KEY } = require("../config");
 const { UnauthorizedError } = require("../expressError");
 const { restart } = require("nodemon");
 
-/** Middleware: Authenticate user.
- *
+/**
+ * Middleware for JWT authentication.
+ * If a valid JWT is provided, it sets the user in res.locals.
+ */
+*
  * If a token was provided, verify it, and, if valid, store the token payload
  * on res.locals (this will include the username and isAdmin field.)
  *
@@ -28,8 +31,8 @@ function authenticateJWT(req, res, next) {
   }
 }
 
-/** Middleware to use when they must be logged in.
- *
+/**
+ * Middleware to use when they must be logged in.
  * If not, raises Unauthorized.
  */
 
@@ -42,9 +45,13 @@ function ensureLoggedIn(req, res, next) {
   }
 }
 
+/**
+ * Middleware to verify if the user is an admin.
+ * If the user is not an admin, it throws an UnauthorizedError.
+ */
+
 function isAdmin(req, res, next) {
   try {
-    // console.log("res - is admin", res.locals.user.isAdmin);
     if (!res.locals.user.isAdmin) throw new UnauthorizedError();
     return next();
   } catch (err) {
@@ -52,12 +59,15 @@ function isAdmin(req, res, next) {
   }
 }
 
+/**
+ * Middleware to ensure the request is made by the correct user or an admin.
+ * If the user doesn't match or is not an admin, it throws an UnauthorizedError.
+ */
+
 function correctUserOrAdmin(req, res, next) {
   try {
     const usernameInRoute = req.params.username;
     const currentUser = res.locals.user;
-    // console.log("currentUser", currentUser.username);
-    // console.log("usernmaeROUTE", usernameInRoute);
 
     if (usernameInRoute === currentUser.username || res.locals.user.isAdmin) {
       return next();

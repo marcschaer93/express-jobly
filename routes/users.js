@@ -10,7 +10,7 @@ const {
   isAdmin,
   correctUserOrAdmin,
 } = require("../middleware/auth");
-const { BadRequestError } = require("../expressError");
+const { BadRequestError, ExpressError } = require("../expressError");
 const User = require("../models/user");
 const { createToken } = require("../helpers/tokens");
 const userNewSchema = require("../schemas/userNew.json");
@@ -126,6 +126,40 @@ router.delete(
     try {
       await User.remove(req.params.username);
       return res.json({ deleted: req.params.username });
+    } catch (err) {
+      return next(err);
+    }
+  }
+);
+
+/**
+ * Apply for a job by its ID for a specific user.
+ *
+ * This route handler allows a user to apply for a job by providing their username
+ * and the job's ID. It checks if the user has already applied for the job and
+ * responds with an error message if they have. If not, it applies the user to the job
+ * and confirms the application with a JSON response.
+ */
+
+router.post(
+  "/:username/jobs/:id",
+  correctUserOrAdmin,
+  async function (req, res, next) {
+    try {
+      const { username, id } = req.params;
+
+      // Convert 'id' to a number before using includes
+      const jobId = parseInt(id, 10);
+      const alreadyAppliedJobs = await User.getAppliedJobs(username);
+      // Extract job IDs from the array
+      const alreadyAppliedJobIds = alreadyAppliedJobs.map((job) => job.id);
+
+      if (alreadyAppliedJobIds.includes(jobId)) {
+        throw new ExpressError(`Already Applied for that Job!`);
+      }
+
+      await User.applyToJob(req.params);
+      return res.json({ applied: id });
     } catch (err) {
       return next(err);
     }

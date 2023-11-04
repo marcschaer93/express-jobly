@@ -1,7 +1,5 @@
 const { BadRequestError, ExpressError } = require("../expressError");
 
-// THIS NEEDS SOME GREAT DOCUMENTATION.
-
 /**
  * Generate SQL SET clause and values for partial updates.
  *
@@ -44,73 +42,108 @@ function sqlForPartialUpdate(dataToUpdate, jsToSql) {
 }
 
 /**
+ * Generate an SQL filter for company queries based on provided parameters.
  *
- * @param {*} queryParams
- * @returns
+ * This function creates an SQL filter for querying companies based on parameters
+ * like name, minimum employees, and maximum employees.
+ *
+ * @param {Object} queryParams - Parameters for filtering companies.
+ * @returns {string} An SQL filter to be added to the SQL query.
+ *
+ * @throws {ExpressError} If invalid parameters are provided.
+ *
+ * @example
+ * const queryParams = { nameLike: 'tech', minEmployees: 100, maxEmployees: 500 };
+ * const sqlFilter = createSqlFilterForCompany(queryParams);
+ * // Result: 'WHERE LOWER(handle) LIKE '%tech%' AND num_employees >= 100 AND num_employees <= 500'
  */
 
-function createSqlFilterFromQuery(queryParams) {
+function createSqlFilterForCompany(queryParams) {
   const { nameLike, minEmployees, maxEmployees } = queryParams;
-  // console.log("queryParams$$", queryParams);
+  const conditions = [];
 
-  if (minEmployees !== undefined && isNaN(minEmployees)) {
-    throw new ExpressError(
-      "Query Parameter 'minEmployees' must be a number!",
-      400
-    );
+  /**
+   * If a filter is provided, it must be a valid number; otherwise, it's ignored.
+   */
+
+  if (minEmployees !== undefined) {
+    if (!isNaN(minEmployees)) {
+      conditions.push(`num_employees >= ${minEmployees}`);
+    } else {
+      throw new ExpressError(
+        `Query Parameter 'minEmployees' must be a number!`,
+        400
+      );
+    }
   }
-
-  if (maxEmployees !== undefined && isNaN(maxEmployees)) {
-    throw new ExpressError(
-      "Query Parameter 'maxEmployees' must be a number!",
-      400
-    );
+  if (maxEmployees !== undefined) {
+    if (!isNaN(maxEmployees)) {
+      conditions.push(`num_employees <= ${maxEmployees}`);
+    } else {
+      throw new ExpressError(
+        `Query Parameter 'maxEmployees' must be a number!`,
+        400
+      );
+    }
   }
-
-  // Convert the name to lowercase for case-insensitive search
-  const lowerCaseNameLike = nameLike ? nameLike.toLowerCase() : null;
-
-  // Empty Array to store conditions
-  let conditions = [];
 
   if (nameLike) {
-    conditions.push(`handle LIKE '%${lowerCaseNameLike}%'`);
-  }
-  // if (minEmployees !== undefined && minEmployees !== "") {
-  //   if (typeof minEmployees === "number") {
-  //     conditions.push(`num_employees >= ${minEmployees}`);
-  //   } else {
-  //     throw new ExpressError(
-  //       "Query Parameter 'minEmployees' must be a number!",
-  //       404
-  //     );
-  //   }
-  // }
-
-  // if (maxEmployees !== undefined && maxEmployees !== "") {
-  //   if (typeof maxEmployees === "number") {
-  //     conditions.push(`num_employees <= ${maxEmployees}`);
-  //   } else {
-  //     throw new ExpressError(
-  //       "Query Parameter 'maxEmployees' must be a number!",
-  //       404
-  //     );
-  //   }
-  // }
-
-  if (minEmployees !== undefined && minEmployees !== "") {
-    conditions.push(`num_employees >= ${minEmployees}`);
+    conditions.push(`LOWER(handle) LIKE '%${nameLike.toLowerCase()}%'`);
   }
 
-  if (maxEmployees !== undefined && maxEmployees !== "") {
-    conditions.push(`num_employees <= ${maxEmployees}`);
-  }
-
-  // console.log("Conditions - helper", conditions);
-  const sqlFilter =
-    conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : null;
-
-  return sqlFilter;
+  return conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 }
 
-module.exports = { sqlForPartialUpdate, createSqlFilterFromQuery };
+/**
+ * Generate an SQL filter for job queries based on provided parameters.
+ *
+ * This function creates an SQL filter for querying jobs based on parameters like
+ * title, minimum salary, and equity.
+ *
+ * @param {Object} queryParams - Parameters for filtering jobs.
+ * @returns {string} An SQL filter to be added to the SQL query.
+ *
+ * @throws {ExpressError} If invalid parameters are provided.
+ *
+ * @example
+ * const queryParams = { title: 'developer', minSalary: 50000, hasEquity: true };
+ * const sqlFilter = createSqlFilterForJob(queryParams);
+ * // Result: 'WHERE LOWER(title) LIKE '%developer%' AND salary >= 50000 AND equity IS NOT NULL AND equity > 0'
+ */
+
+function createSqlFilterForJob(queryParams) {
+  const { title, minSalary, hasEquity } = queryParams;
+
+  const conditions = [];
+
+  /**
+   * If a filter is provided, it must be a valid number; otherwise, it's ignored.
+   */
+
+  if (minSalary !== undefined) {
+    if (!isNaN(minSalary)) {
+      conditions.push(`salary >= ${minSalary}`);
+    } else {
+      throw new ExpressError(
+        `Invalid 'minSalary' parameter. It must be a valid number.`,
+        400
+      );
+    }
+  }
+
+  if (hasEquity === "true") {
+    conditions.push(`equity IS NOT NULL AND equity > 0`);
+  }
+
+  if (title) {
+    conditions.push(`LOWER(title) LIKE '%${title.toLowerCase()}%'`);
+  }
+
+  return conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+}
+
+module.exports = {
+  sqlForPartialUpdate,
+  createSqlFilterForCompany,
+  createSqlFilterForJob,
+};
