@@ -15,7 +15,9 @@ async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM companies");
 
-  // await db.query("DELETE FROM jobs");
+  await db.query("DELETE FROM jobs");
+
+  await db.query("DELETE from applications");
 
   // Create sample data for companies, users, and jobs as needed for your tests.
   await Company.create({

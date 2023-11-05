@@ -225,6 +225,7 @@ class User {
       [username, id]
     );
   }
+  /** Get All Applied Jobs of a User */
 
   static async getAppliedJobs(username) {
     try {

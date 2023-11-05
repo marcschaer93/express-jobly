@@ -339,3 +339,45 @@ describe("DELETE /users/:username", function () {
     expect(resp.statusCode).toEqual(401);
   });
 });
+
+/*********************************** POST /users/:username/jobs/:id */
+
+describe("POST /users/:username/jobs/:id", function () {
+  test("works for correct User or Admin", async function () {
+    const username = "u1";
+    const id = testJobIds[2];
+
+    const resp = await request(app)
+      .post(`users/${username}/jobs/${id}`)
+      .set("authorization", `Bearer ${u1Token}`);
+
+    expect(resp.statusCode).toEqual(200);
+    expect(response.body).toEqual({ applied: jobId });
+  });
+
+  test("allows an admin to apply for a job on behalf of a user", async function () {
+    const username = "testuser";
+    const jobId = 1; // Replace with a valid job ID
+
+    // Mock the necessary functions and ensure User.getAppliedJobs returns an array with no jobId
+
+    const response = await request(app)
+      .post(`/users/${username}/jobs/${jobId}`)
+      .set("Authorization", adminToken);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toEqual({ applied: jobId });
+  });
+
+  test("prevents applying for a job without proper authorization", async function () {
+    const username = "testuser";
+    const jobId = 1; // Replace with a valid job ID
+
+    const response = await request(app).post(
+      `/users/${username}/jobs/${jobId}`
+    );
+
+    expect(response.statusCode).toBe(401); // Adjust the expected status code if necessary
+    expect(response.body.message).toBe("Unauthorized");
+  });
+});

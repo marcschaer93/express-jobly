@@ -231,3 +231,58 @@ describe("remove", function () {
     }
   });
 });
+
+/************************************** apply to Job */
+
+describe("User can apply to Job", function () {
+  test("works with valid data", async function () {
+    const username = "u2";
+    const id = testJobIds[1];
+
+    // Call the applyToJob method
+    await User.applyToJob({ username, id });
+
+    const result = await db.query(
+      `
+    SELECT *
+    FROM applications
+    WHERE username = $1
+    AND job_id = $2
+    `,
+      [username, id]
+    );
+
+    expect(result.rows.length).toEqual(1);
+  });
+});
+
+/******************************** Get All Applied Jobs of a User  */
+
+describe("Get All Applied Jobs of a User", function () {
+  test("works with valid data", async function () {
+    const username = "u1";
+
+    const result = await User.getAppliedJobs(username);
+
+    expect(result.length).toEqual(1);
+  });
+});
+
+// static async getAppliedJobs(username) {
+//   try {
+//     const appliedJobs = await db.query(
+//       `
+//       SELECT j.id, j.title, j.salary, j.equity, c.name AS company_name
+//       FROM applications AS a
+//       JOIN jobs AS j ON a.job_id = j.id
+//       JOIN companies AS c ON j.company_handle = c.handle
+//       WHERE a.username = $1;
+//     `,
+//       [username]
+//     );
+
+//     return appliedJobs.rows;
+//   } catch (error) {
+//     throw new Error("Error fetching applied jobs");
+//   }
+// }

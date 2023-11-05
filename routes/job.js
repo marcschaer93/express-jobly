@@ -118,7 +118,7 @@ router.delete("/:id", ensureLoggedIn, isAdmin, async function (req, res, next) {
   try {
     const jobId = req.params.id;
 
-    await Job.remove(jobTitle);
+    await Job.remove(jobId);
 
     return res.json({ message: `Removed title with id: ${jobId}` });
   } catch (err) {
