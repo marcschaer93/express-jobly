@@ -14,6 +14,7 @@ const {
   u1Token,
   u2Token,
   adminToken,
+  testJobIds,
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -128,6 +129,7 @@ describe("GET /users", function () {
           lastName: "U1L",
           email: "user1@user.com",
           isAdmin: false,
+          jobs: [testJobIds[0]],
         },
         {
           username: "u2",
@@ -135,6 +137,7 @@ describe("GET /users", function () {
           lastName: "U2L",
           email: "user2@user.com",
           isAdmin: false,
+          jobs: [null],
         },
         {
           username: "u3",
@@ -142,6 +145,7 @@ describe("GET /users", function () {
           lastName: "U3L",
           email: "user3@user.com",
           isAdmin: false,
+          jobs: [null],
         },
         {
           email: "admin@user.com",
@@ -149,6 +153,7 @@ describe("GET /users", function () {
           isAdmin: true,
           lastName: "l_admin",
           username: "admin",
+          jobs: [null],
         },
         // Add other expected user objects here
       ])
@@ -186,6 +191,7 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: false,
+        jobs: [testJobIds[0]],
       },
     });
   });
@@ -201,6 +207,7 @@ describe("GET /users/:username", function () {
         lastName: "U1L",
         email: "user1@user.com",
         isAdmin: false,
+        jobs: [testJobIds[0]],
       },
     });
   });

@@ -371,14 +371,16 @@ describe("POST /jobs", function () {
 describe("GET /jobs", function () {
   test("ok for anon", async function () {
     const resp = await request(app).get("/jobs");
-    expect(resp.statusCode).toEqual(201);
+    expect(resp.statusCode).toEqual(200);
     expect(resp.body).toEqual({
-      jobs: [
+      filteredJobs: [
         {
+          id: testJobIds[0],
           title: "J1",
           salary: 1,
           equity: "0.1",
-          company_handle: "c1",
+          companyHandle: "c1",
+          companyName: "C1",
         },
       ],
     });

@@ -11,12 +11,6 @@ const { restart } = require("nodemon");
  * Middleware for JWT authentication.
  * If a valid JWT is provided, it sets the user in res.locals.
  */
-*
- * If a token was provided, verify it, and, if valid, store the token payload
- * on res.locals (this will include the username and isAdmin field.)
- *
- * It's not an error if no token was provided or if the token is not valid.
- */
 
 function authenticateJWT(req, res, next) {
   try {
