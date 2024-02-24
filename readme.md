@@ -69,6 +69,33 @@ Create a PostgreSQL database and user for this project and note down the credent
 
 The API server will start running on http://localhost:3001.
 
+### Testing with Jest and Supertest
+
+This project uses Jest for unit and integration testing and Supertest for HTTP assertions. This combination ensures that both the business logic and the API endpoints are working as expected.
+
+Prerequisites for Testing
+Before running the tests, ensure you have Jest and Supertest installed:
+
+1. **Install Supertest and Jest**:
+
+   ```sh
+   npm install --save-dev jest supertest jest
+   ```
+
+2. **Create the Test Database**:
+
+   ```sh
+   createdb jobly-test
+   ```
+
+3. **Running Tests**:
+
+   ```sh
+   npm run test
+   ```
+
+This command executes all tests found within the **tests** directory. The tests are configured to use the test database by setting the NODE_ENV environment variable to "test".
+
 ### Using the API
 
 Refer to the provided Postman collection for examples of requests you can make to the API.
@@ -78,3 +105,7 @@ Refer to the provided Postman collection for examples of requests you can make t
 Marc Schaer
 
 Feel free to contact me with any questions or feedback you might have.
+
+```
+
+```
