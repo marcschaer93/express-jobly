@@ -16,6 +16,13 @@ This project is built with:
 - **Express.js**: A minimal and flexible Node.js web application framework that provides a robust set of features for web and mobile applications.
 - **PostgreSQL**: A powerful, open-source object-relational database system.
 
+### Testing Technologies
+
+For ensuring code quality and functionality, the project utilizes:
+
+- **Jest**: A delightful JavaScript Testing Framework with a focus on simplicity, used for writing unit and integration tests.
+- **Supertest**: A Super-agent driven library for testing HTTP servers, used in conjunction with Jest to test Express API routes and responses.
+
 ### Dependencies
 
 Ensure you have Node.js and PostgreSQL installed on your system. You can download them from their official websites:
@@ -105,7 +112,3 @@ Refer to the provided Postman collection for examples of requests you can make t
 Marc Schaer
 
 Feel free to contact me with any questions or feedback you might have.
-
-```
-
-```
